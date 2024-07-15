@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AdminAndUserRoleAuthentication.WebApi.Controllers
@@ -18,8 +19,25 @@ namespace AdminAndUserRoleAuthentication.WebApi.Controllers
             _logger = logger;
         }
 
-        [HttpGet(Name = "GetWeatherForecast")]
-        public IEnumerable<WeatherForecast> Get()
+        #region [HttpGet] - Only admin can view
+        [HttpGet("admin")]
+        [Authorize(Roles = "Admin")]
+        public IEnumerable<WeatherForecast> GetForecastByAdmin()
+        {
+            return Enumerable.Range(1, 10).Select(index => new WeatherForecast
+            {
+                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+                TemperatureC = Random.Shared.Next(-20, 55),
+                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
+            })
+            .ToArray();
+        }
+        #endregion
+
+        #region [HttpGet] - Only user can view
+        [HttpGet("user")]
+        [Authorize(Roles = "User")]
+        public IEnumerable<WeatherForecast> GetForecastByUser()
         {
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
@@ -29,5 +47,6 @@ namespace AdminAndUserRoleAuthentication.WebApi.Controllers
             })
             .ToArray();
         }
+        #endregion
     }
 }
